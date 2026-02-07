@@ -14,15 +14,7 @@
         "allowJs": true,
         "checkJs": true,
         "isolatedModules": true,
-        "moduleDetection": "force",
-        "lib": [
-            "ESNext",
-            "DOM"
-        ]
+        "moduleDetection": "force"
     },
-    "include": [
-        "src/**/*.ts",
-        "src/**/*.js",
-        "src/**/*.svelte"
-    ]
+    "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
 }

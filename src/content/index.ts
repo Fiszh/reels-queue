@@ -8,8 +8,6 @@ import { count, link_queue } from "../storage";
 export function setUrl(url: string, user: string) {
     link_queue.update((data) => data.filter((link) => link.link != url));
 
-    const URL = new URLPattern(url);
-
     window.location.href = url + `?queued_by=${user}`;
 }
 
