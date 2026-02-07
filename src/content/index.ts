@@ -1,15 +1,17 @@
 import { mount } from "svelte";
 import Overlay from "../components/Overlay.svelte";
-import { count } from "../storage";
+import { count, link_queue } from "../storage";
 
 // Content scripts
 // https://developer.chrome.com/docs/extensions/mv3/content_scripts/
 
-// Some global styles on the page
-import "./styles.css";
+export function setUrl(url: string, user: string) {
+    link_queue.update((data) => data.filter((link) => link.link != url));
 
-// Some JS on the page
-count.subscribe(console.log);
+    const URL = new URLPattern(url);
+
+    window.location.href = url + `?queued_by=${user}`;
+}
 
 // Some svelte component on the page
 mount(Overlay, { target: document.body });

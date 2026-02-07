@@ -1,10 +1,14 @@
-import { count } from "../storage";
+import { connect, disconnect } from "./chat";
 
 // Background service workers
 // https://developer.chrome.com/docs/extensions/mv3/service_workers/
 
-chrome.runtime.onInstalled.addListener(() => {
-    count.subscribe(console.log);
+chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.type === 'connect_twitch') {
+        console.log(msg);
+        disconnect();
+        connect(msg.inputed_channel);
+    }
 });
 
 // NOTE: If you want to toggle the side panel from the extension's action button,

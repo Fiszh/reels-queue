@@ -53,3 +53,6 @@ export function persistentStore<T>(key: string, initialValue: T): Writable<T> {
 }
 
 export const count = persistentStore("count", 10);
+export const link_queue = persistentStore<queue_link[]>("link_queue", []);
+export const twitch_channel = persistentStore<string>("twitch_channel", "");
+export const connection_status = persistentStore<string>("connection_status", "unkown");
