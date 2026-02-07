@@ -1,6 +1,6 @@
 import { mount } from "svelte";
 import Overlay from "../components/Overlay.svelte";
-import { count, link_queue } from "../storage";
+import { link_queue, sent_by } from "../storage";
 
 // Content scripts
 // https://developer.chrome.com/docs/extensions/mv3/content_scripts/
@@ -11,7 +11,9 @@ export function setUrl(url: string, user: string) {
     const clean = new URL(url);
     clean.search = "";
 
-    window.location.href = clean.toString() + `?queued_by=${user}`;
+    sent_by.set(user);
+
+    window.location.href = clean.toString();
 }
 
 // Some svelte component on the page

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { connection_status, link_queue, twitch_channel } from "../storage";
+    import { connection_status, link_queue, sent_by, twitch_channel } from "../storage";
     import QueueDisplay from "./QueueDisplay.svelte";
     import { get } from "svelte/store";
     import { setUrl } from "../content";
@@ -35,8 +35,6 @@
         },
     ];
 
-    let queuedBy: string | null = "";
-
     function connectToIRC() {
         if (!inputed_channel || !inputed_channel.length) {
             alert("Invalid channel name...");
@@ -49,9 +47,6 @@
     const clearQueue = () => {link_queue.set([])};
 
     onMount(() => {
-        const params = new URLSearchParams(window.location.search);
-        queuedBy = params.get("queued_by");
-
         queue = get(link_queue);
         link_queue.subscribe((data) => (queue = data));
 
@@ -86,7 +81,7 @@
     </p>
 
     <p id="queuedBy">
-        Current reel queued by: <span>{queuedBy || "None"}</span>
+        Current reel queued by: <span>{$sent_by}</span>
     </p>
 
     <!-- <Options {count} /> -->
@@ -124,7 +119,7 @@
         border-radius: 1rem;
         border: 1px solid #333;
         padding: 0.5rem;
-        height: 35dvh;
+        height: 25rem;
         min-width: 17rem;
         width: 17dvw;
         text-align: center;
