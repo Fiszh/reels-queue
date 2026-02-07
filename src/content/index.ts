@@ -8,7 +8,10 @@ import { count, link_queue } from "../storage";
 export function setUrl(url: string, user: string) {
     link_queue.update((data) => data.filter((link) => link.link != url));
 
-    window.location.href = url + `?queued_by=${user}`;
+    const clean = new URL(url);
+    clean.search = "";
+
+    window.location.href = clean.toString() + `?queued_by=${user}`;
 }
 
 // Some svelte component on the page
