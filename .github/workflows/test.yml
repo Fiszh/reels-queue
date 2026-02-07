@@ -10,13 +10,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@v4
 
-      # Install Bun
-      - name: Setup Bun
-        uses: oven-sh/bun@v1
-        with:
-          bun-version: latest
+      # Setup Bun
+      - uses: oven-sh/setup-bun@v2
 
       # Install dependencies
       - run: bun install
