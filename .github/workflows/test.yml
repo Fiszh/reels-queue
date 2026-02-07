@@ -1,22 +1,28 @@
 name: Check and build
 
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: 20
-            # Install dependencies
-            - run: npm ci
-            # Check
-            - run: npm run check
-            # Build
-            - run: npm run build
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Install Bun
+      - name: Setup Bun
+        uses: oven-sh/bun@v1
+        with:
+          bun-version: latest
+
+      # Install dependencies
+      - run: bun install
+
+      # Check
+      - run: bun run check
+
+      # Build
+      - run: bun run build

@@ -1,11 +1,11 @@
 {
-    "name": "chrome-extension-svelte-typescript-boilerplate",
-    "description": "Boilerplate for Chrome Extension Svelte Typescript project",
+    "name": "reels-queue",
+    "description": "Instagram Reels Queue, made by uniiDev",
     "version": "0.0.1",
     "type": "module",
     "repository": {
         "type": "git",
-        "url": "https://github.com/nekitcorp/chrome-extension-svelte-typescript-boilerplate.git"
+        "url": "https://github.com/Fiszh/reels-queuee.git"
     },
     "scripts": {
         "dev": "vite",
