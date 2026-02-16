@@ -103,11 +103,11 @@ export function connect(channel_name: string) {
               }
 
               parsed_link.link = parsed_link.link.replace(/\/reels\//g, "/reel/");
-              
+
               link_queue.update(links => {
                 const already_in_queue = links.find(link => link.link == parsed_link.link);
 
-                if (true) {
+                if (parsed.tags.merged["bits"]) {
                   const words = parsed.message.split(/\s+/).filter(word => !/^https?:\/\//.test(word));
 
                   for (const word of words) {
