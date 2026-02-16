@@ -1,4 +1,4 @@
-import { connect, disconnect, IRC_is_connected } from "./chat";
+import { connect, disconnect, IRC_is_connected, setBitsBoost } from "./chat";
 
 // Background service workers
 // https://developer.chrome.com/docs/extensions/mv3/service_workers/
@@ -24,6 +24,29 @@ chrome.runtime.onMessage.addListener((msg) => {
         });
     }
 });
+
+chrome.storage.onChanged.addListener((changes, area) => {
+    console.log(changes);
+    if (area === "sync" && changes.user_settings) {
+        const newValue = changes.user_settings.newValue as userSettings;
+        const oldValue = changes.user_settings.oldValue as userSettings;
+
+        if (newValue.bitsBoots) {
+            setBitsBoost(Number(newValue.bitsAmount));
+        } else {
+            setBitsBoost(0);
+        }
+    }
+});
+
+chrome.runtime.onConnect.addListener(() => {
+    chrome.storage.sync.get("user_settings").then((result) => {
+        if (!result["user_settings"]) return;
+        const user_settings = result["user_settings"] as userSettings;
+
+        if (user_settings["bitsBoots"]) setBitsBoost(Number(user_settings["bitsAmount"]));
+    });
+})
 
 // NOTE: If you want to toggle the side panel from the extension's action button,
 // you can use the following code:

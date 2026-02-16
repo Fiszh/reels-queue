@@ -69,17 +69,12 @@
     }
 
     function connectToIRC() {
-        if (!inputed_channel || !inputed_channel.length) {
-            alert("Invalid channel name...");
-            return;
-        }
+        if (!inputed_channel || !inputed_channel.length) return alert("Invalid channel name...");
 
         chrome.runtime.sendMessage({ type: "connect_twitch", inputed_channel });
     }
 
-    const clearQueue = () => {
-        link_queue.set([]);
-    };
+    const clearQueue = () => link_queue.set([]);
 
     onMount(() => {
         queue = get(link_queue);

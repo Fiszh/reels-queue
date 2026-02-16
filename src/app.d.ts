@@ -4,6 +4,11 @@ declare global {
         by: string;
         id: number | string;
     }
+
+    interface userSettings {
+        bitsBoots: boolean;
+        bitsAmount: number;
+    }
 }
 
 export { }

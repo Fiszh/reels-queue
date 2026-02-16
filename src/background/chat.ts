@@ -26,6 +26,10 @@ let heartbeatTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
 connection_status.set("not_connected");
 
+let boostBitsAmount = 0;
+
+export const setBitsBoost = (bits: number) => boostBitsAmount = bits;
+
 export function connect(channel_name: string) {
   console.log(channel_name);
   if (IRC_is_connected) return;
@@ -82,9 +86,8 @@ export function connect(channel_name: string) {
 
             break;
           case "CLEARCHAT":
-            if (parsed.tags.merged["target-user-id"]) {
-              link_queue.update(arr => arr.filter(item => String(item["id"]) !== String(parsed.tags.merged["target-user-id"])));
-            }
+            if (parsed.tags.merged["target-user-id"])
+              link_queue.update(arr => arr.filter(item => String(item["id"]) != String(parsed.tags.merged["target-user-id"])));
 
             break;
           case "PRIVMSG":
@@ -100,11 +103,27 @@ export function connect(channel_name: string) {
               }
 
               parsed_link.link = parsed_link.link.replace(/\/reels\//g, "/reel/");
-
+              
               link_queue.update(links => {
                 const already_in_queue = links.find(link => link.link == parsed_link.link);
 
-                if (links.length < 100 && !already_in_queue) links = [...links, parsed_link]; // MAX 100 LINKS
+                if (true) {
+                  const words = parsed.message.split(/\s+/).filter(word => !/^https?:\/\//.test(word));
+
+                  for (const word of words) {
+                    const match = word.match(/^([a-zA-Z]+)(\d+)$/);
+                    if (match) {
+                      let prefix = match[1]; // Prefix
+                      let bits = match[2]; // Amount
+
+                      if (bits && boostBitsAmount > 0 && Number(bits) >= boostBitsAmount) links = [parsed_link, ...links];
+
+                      break;
+                    }
+                  }
+                } else {
+                  if (links.length < 100 && !already_in_queue) links = [...links, parsed_link]; // MAX 100 LINKS
+                }
 
                 return links;
               });

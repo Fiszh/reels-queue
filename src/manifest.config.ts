@@ -28,8 +28,12 @@ export default defineManifest(async () => ({
             js: ["src/content/index.ts"],
         },
     ],
+    options_ui: {
+        page: "src/options/options.html",
+        open_in_tab: false,
+    },
     background: {
         service_worker: "src/background/index.ts",
     },
-    permissions: ["storage"] as chrome.runtime.ManifestPermissions[],
+    permissions: ["storage", "tabs"] as chrome.runtime.ManifestPermissions[],
 }));

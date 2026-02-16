@@ -1,4 +1,5 @@
 import { writable, type Updater, type Writable } from "svelte/store";
+import { default_settings } from "./defaults";
 
 /**
  * Creates a persistent Svelte store backed by Chrome's sync storage.
@@ -56,3 +57,4 @@ export const link_queue = persistentStore<queue_link[]>("link_queue", []);
 export const twitch_channel = persistentStore<string>("twitch_channel", "");
 export const connection_status = persistentStore<string>("connection_status", "unkown");
 export const sent_by = persistentStore<string>("sent_by", "none");
+export const user_settings = persistentStore<userSettings>("user_settings", default_settings);
