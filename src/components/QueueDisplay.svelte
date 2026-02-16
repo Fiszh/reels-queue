@@ -23,25 +23,42 @@
         all: unset;
         width: 100%;
         height: 100%;
-        background-color: rgba(255, 255, 255, 0.25);
         border-radius: 0.5em;
         overflow-y: auto;
         overflow-x: hidden;
 
+        padding: 0.25rem;
+        box-sizing: border-box;
+
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        background-color: #262626;
+
         button {
             all: unset;
             cursor: pointer;
-            border-bottom: 1px solid #6e6e6e;
+            border: 1px solid #333;
+            padding-block: 0.25rem;
+            box-sizing: border-box;
+            border-radius: 0.5rem;
             background-color: rgba(0, 0, 0, 0.25);
+            color: #0081d8;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
             font-weight: bold;
-            
+
+            &:hover {
+                color: #008be8;
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+
             #user {
-                color: rgb(238, 242, 255);
+                color: #818181;
             }
 
             span {
@@ -51,10 +68,6 @@
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 text-align: center;
-            }
-
-            &:hover {
-                background-color: rgba(0, 0, 0, 0.05);
             }
         }
     }

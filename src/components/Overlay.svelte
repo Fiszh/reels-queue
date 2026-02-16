@@ -1,10 +1,15 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { connection_status, link_queue, sent_by, twitch_channel } from "../storage";
+    import {
+        connection_status,
+        link_queue,
+        sent_by,
+        twitch_channel,
+    } from "../storage";
     import QueueDisplay from "./QueueDisplay.svelte";
     import { get } from "svelte/store";
     import { setUrl } from "../content";
-    import { ArrowBigRight, Power, Trash } from "lucide-svelte";
+    import { ArrowBigRight, Power, Trash, History } from "lucide-svelte";
 
     let next_button: HTMLButtonElement;
 
@@ -12,12 +17,15 @@
 
     let connect_button: HTMLButtonElement;
 
+    let check_version: HTMLButtonElement;
+
     let queue: queue_link[];
     let inputed_channel: string;
 
     let irc_connection_status: string = "not_connected";
 
-    const faked_queue: queue_link[] = [ // LEAVING THIS FOR TESTING :P
+    const faked_queue: queue_link[] = [
+        // LEAVING THIS FOR TESTING :P
         {
             link: "https://www.instagram.com/reel/DUWVd4ZESB5/",
             by: "uniidev",
@@ -35,6 +43,31 @@
         },
     ];
 
+    async function checkVersion() {
+        const version = chrome.runtime.getManifest().version;
+
+        const res = await fetch(
+            "https://api.github.com/repos/Fiszh/reels-queue/tags",
+        );
+
+        if (!res.ok) return alert("Failed to get latest GitHub version!");
+
+        const data = await res.json();
+
+        if (!data) return alert("No data from GitHub, please try again!");
+
+        if (data[0]?.["name"]?.endsWith(version)) {
+            return alert("Already on newest version!");
+        } else {
+            alert("Update available, opening download page!");
+
+            chrome.runtime.sendMessage({
+                type: "open-tab",
+                url: `https://github.com/Fiszh/reels-queue/releases/tag/${data[0]["name"]}`,
+            });
+        }
+    }
+
     function connectToIRC() {
         if (!inputed_channel || !inputed_channel.length) {
             alert("Invalid channel name...");
@@ -44,7 +77,9 @@
         chrome.runtime.sendMessage({ type: "connect_twitch", inputed_channel });
     }
 
-    const clearQueue = () => {link_queue.set([])};
+    const clearQueue = () => {
+        link_queue.set([]);
+    };
 
     onMount(() => {
         queue = get(link_queue);
@@ -69,61 +104,130 @@
 </script>
 
 <div class="overlay">
-    <p>
+    <p id="topbar">
         <img
             src="https://static.cdninstagram.com/rsrc.php/v4/yI/r/VsNE-OHk_8a.png"
             alt="logo"
-        /> 
+        />
         <span id="title">
             Instagram Reels Queue
             <span id="by">By: uniiDev</span>
         </span>
     </p>
 
-    <p id="queuedBy">
-        Current reel queued by: <span>{$sent_by}</span>
-    </p>
+    <main id="queue_main">
+        <p id="queuedBy">
+            Current reel queued by: <span id="sent_by">{$sent_by}</span>
+        </p>
 
-    <!-- <Options {count} /> -->
-    <QueueDisplay queue={link_queue} />
+        <!-- <Options {count} /> -->
+        <QueueDisplay queue={link_queue} />
 
-    <button bind:this={clear_button} onclick={clearQueue} id="clearQueue"> <Trash size="1rem"/> Clear Queue</button>
-
-    <span id="connect"
-        ><input bind:value={$twitch_channel} placeholder="channel..." />
         <button
-            id="connect-button"
-            title="Connect"
-            bind:this={connect_button}
-            onclick={connectToIRC}
+            bind:this={clear_button}
+            onclick={clearQueue}
+            id="clearQueue"
+            class="button"
         >
-            <Power size="1rem" />
-        </button>
-    </span>
+            <Trash size="1rem" /> Clear Queue</button
+        >
 
-    <button bind:this={next_button} id="next">Next <ArrowBigRight size="1rem"/></button>
+        <span id="connect" class="button"
+            ><input
+                bind:value={$twitch_channel}
+                type="text"
+                class="button"
+                placeholder="channel..."
+            />
+            <button
+                class="button"
+                id="connect-button"
+                title="Connect"
+                bind:this={connect_button}
+                onclick={connectToIRC}
+            >
+                <Power size="1rem" />
+            </button>
+        </span>
 
-    Connection Status: {irc_connection_status}
+        <button bind:this={next_button} id="next" class="button"
+            >Next <ArrowBigRight size="1rem" /></button
+        >
+
+        <button bind:this={check_version} class="button" onclick={checkVersion}
+            >Check Version <History size="1rem" /></button
+        >
+    </main>
+
+    <span id="connection_status"
+        >Connection Status: <p class={irc_connection_status}>
+            {irc_connection_status}
+        </p></span
+    >
+
+    <span id="version">v{chrome.runtime.getManifest().version}</span>
 </div>
 
 <style lang="scss">
+    #topbar {
+        background: linear-gradient(to right, #9333ea, #db2777, #f97316);
+        padding: 0.75rem;
+        display: flex;
+        align-items: center;
+
+        #title {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.85rem;
+
+            #by {
+                font-size: 0.7rem;
+                color: #ffffffcc;
+            }
+        }
+    }
+
     .overlay {
         position: fixed;
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
         top: 1%;
         right: 1%;
-        background-color: rgba(0, 0, 0, 0.75);
-        color: white;
-        border-radius: 1rem;
-        border: 1px solid #333;
-        padding: 0.5rem;
-        height: 25rem;
+        overflow: hidden;
+        height: 30rem;
         min-width: 17rem;
         width: 17dvw;
+        z-index: 10000000;
+        border-radius: 0.5rem;
+
+        background: #111111;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        border: 1px solid #2a2a2a;
+
+        text-align: left;
+
+        padding-bottom: 0.25rem;
+        box-sizing: border-box;
+    }
+
+    #queue_main {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        color: white;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        padding: 0.75rem;
+        gap: 0.5rem;
+        box-sizing: border-box;
+    }
+
+    #version {
+        padding-block: 0.25rem;
+        box-sizing: border-box;
         text-align: center;
-        z-index: 10000000; // we love css dude
     }
 
     p {
@@ -131,23 +235,19 @@
         display: flex;
         align-items: center;
         gap: 0.25rem;
-        font-size: 1rem;
+        font-size: 0.75rem;
         font-weight: bolder;
-        justify-content: center;
 
         img {
             max-height: 1.75rem;
         }
 
-        padding-block: 0.25rem;
-        box-sizing: border-box;
-
         border-bottom: 1px solid;
         border-image: linear-gradient(
                 to right,
                 #33333300 5%,
-                #333 20%,
-                #333 80%,
+                #333 15%,
+                #333 85%,
                 #33333300 95%
             )
             1;
@@ -156,18 +256,21 @@
     #queuedBy {
         text-overflow: wrap;
         word-break: break-all;
-        text-align: center;
         display: flex;
         flex-direction: column;
+        text-align: left;
+        align-items: flex-start;
+        width: 100%;
+
+        #sent_by {
+            color: #9ca3af;
+        }
     }
 
-    #clearQueue,
-    #connect-button,
-    input,
-    #next {
+    .button {
         all: unset;
         text-align: center;
-        background-color: rgba(255, 255, 255, 0.25);
+        background-color: #262626;
         border-radius: 0.5rem;
         padding: 0.2rem;
         box-sizing: border-box;
@@ -175,16 +278,26 @@
         font-weight: bold;
         cursor: pointer;
 
+        &:is(button):hover {
+            background-color: #2c2c2c;
+        }
+
+        width: 100%;
+
         display: inline-flex;
         justify-content: center;
         gap: 0.25rem;
+    }
+
+    #next {
+        background: linear-gradient(to right, #0095f6, #0081d6);
 
         &:hover {
-            background-color: rgba(255, 255, 255, 0.35);
+            background: linear-gradient(to right, #0081d6, #006bb3);
         }
     }
 
-    input {
+    input[type="text"] {
         cursor: text;
     }
 
@@ -203,21 +316,37 @@
         width: 100%;
     }
 
-    #title {
-        display: flex;
-        flex-direction: column;
-        text-align: left;
-
-        #by {
-            font-size: 0.75rem;
-        }
-    }
-
     #clearQueue {
-        background-color: rgba(255, 0, 0, 0.9);
+        background: linear-gradient(to right, #dc2626, #b91c1c);
 
         &:hover {
-            background-color: rgba(255, 0, 0, 1);
+            background: linear-gradient(to right, #b91c1c, #991b1b);
+        }
+    }
+    #connection_status {
+        display: inline-flex;
+        justify-content: center;
+        gap: 0.25rem;
+
+        .not_connected {
+            color: #ef4444;
+        }
+
+        .connecting {
+            color: #f59e0b;
+        }
+
+        .open {
+            color: #22c55e;
+        }
+
+        .close,
+        .reconnect_limit_reached {
+            color: #b91c1c;
+        }
+
+        p {
+            all: unset;
         }
     }
 </style>

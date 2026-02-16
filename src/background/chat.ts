@@ -14,7 +14,9 @@ interface ParsedMessage {
 }
 
 let TTV_IRC_WS: WebSocket | null;
-let IRC_is_connected = false;
+export let IRC_is_connected = false;
+
+let can_reconnect = true;
 
 let reconnectAttempts = 0;
 const MAX_RECONNECTS = 10;
@@ -49,7 +51,7 @@ export function connect(channel_name: string) {
       if (TTV_IRC_WS?.readyState === WebSocket.OPEN) {
         TTV_IRC_WS?.send('PING');
 
-        clearTimeout(heartbeatTimeout);
+        clearTimeout(heartbeatTimeout as NodeJS.Timeout);
         heartbeatTimeout = setTimeout(() => {
           console.warn('No PONG, reconnecting...');
           TTV_IRC_WS?.close();
@@ -76,7 +78,7 @@ export function connect(channel_name: string) {
 
             return;
           case "PONG":
-            clearTimeout(heartbeatTimeout);
+            clearTimeout(heartbeatTimeout as NodeJS.Timeout);
 
             break;
           case "CLEARCHAT":
@@ -123,10 +125,17 @@ export function connect(channel_name: string) {
   TTV_IRC_WS.addEventListener('close', () => {
     console.log('Disconnected from Twitch IRC');
 
-    clearInterval(heartbeatInterval);
-    clearTimeout(heartbeatTimeout);
+    clearInterval(heartbeatInterval as NodeJS.Timeout);
+    clearTimeout(heartbeatTimeout as NodeJS.Timeout);
 
     IRC_is_connected = false;
+
+    if (!can_reconnect) {
+      can_reconnect = true;
+
+      connection_status.set('not_connected');
+      return;
+    };
 
     reconnectAttempts++;
 
@@ -141,12 +150,12 @@ export function connect(channel_name: string) {
     }
   });
 
-  TTV_IRC_WS.addEventListener('error', (err) => {
-    console.error('WebSocket error:', err);
-  });
+  TTV_IRC_WS.addEventListener('error', (err) => console.error('WebSocket error:', err));
 }
 
-export function disconnect() {
+export function disconnect(reconnect?: boolean) {
+  if (typeof reconnect == "boolean" && !reconnect) can_reconnect = false;
+
   if (TTV_IRC_WS) {
     TTV_IRC_WS.close();
     TTV_IRC_WS = null;
@@ -154,8 +163,8 @@ export function disconnect() {
 
   IRC_is_connected = false;
 
-  clearInterval(heartbeatInterval);
-  clearTimeout(heartbeatTimeout);
+  clearInterval(heartbeatInterval as NodeJS.Timeout);
+  clearTimeout(heartbeatTimeout as NodeJS.Timeout);
 }
 
 export function sanitizeInput(input: string): string {
